@@ -1,0 +1,33 @@
+# Tell GitHub this is a C# project, not CSS
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+*.html linguist-detectable=false
+
+# Mark C# files as the primary language
+*.cs linguist-language=C#
+*.razor linguist-language=C#
+*.cshtml linguist-language=C#
+
+# Ensure proper line endings
+* text=auto
+*.cs text diff=csharp
+*.razor text
+*.cshtml text
+*.csproj text
+*.sln text
+*.md text
+*.json text
+*.xml text
+
+# Binary files
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
