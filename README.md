@@ -23,6 +23,14 @@ A beautiful, modern todo application built with **ASP.NET Core Blazor Server** a
 - Filter by completed todos
 - Real-time count badges
 
+📄 **Pagination**
+- Efficient page-based loading (10 items per page)
+- Previous/Next navigation with disabled states
+- Page indicator showing current page and total pages
+- Item counter showing visible items and total count
+- Mobile-responsive pagination controls
+- Handles large datasets without performance issues
+
 ⚡ **Priority Management**
 - Three priority levels: Low, Medium, High
 - Color-coded visual indicators (🟢 🟡 🔴)
@@ -44,7 +52,8 @@ BlazorTodo/
 ├── Models/              # Domain entities and DTOs
 │   ├── TodoItem.cs      # Immutable record for todo items
 │   ├── TodoItemDto.cs   # Data transfer object
-│   └── TodoPriority.cs  # Priority enum
+│   ├── TodoPriority.cs  # Priority enum
+│   └── PagedResult.cs   # Pagination metadata wrapper
 ├── Repositories/        # Data access layer
 │   ├── ITodoRepository.cs
 │   └── InMemoryTodoRepository.cs

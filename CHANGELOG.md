@@ -5,6 +5,26 @@ All notable changes to the Blazor Todo App will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-01-03
+
+### Added
+- **Pagination support** for handling large todo lists efficiently
+  - Page-based loading with configurable page size (default: 10 items)
+  - Previous/Next navigation buttons with automatic disable states
+  - Page indicator showing "Page X of Y"
+  - Item counter showing "Showing X of Y todos"
+  - Mobile-responsive pagination controls
+  - `PagedResult<T>` generic model with pagination metadata
+  - `GetPagedAsync` methods in repository and service layers
+  - 8 comprehensive pagination tests (52 total tests now)
+- Real-time count tracking for Active and Completed filter buttons
+- Responsive pagination styling matching app theme
+
+### Changed
+- Home page now loads 10 todos per page instead of all todos at once
+- Filter buttons reset to page 1 when switching filters
+- Improved performance for workspaces with 100+ todos
+
 ## [1.0.1] - 2026-01-03
 
 ### Added
