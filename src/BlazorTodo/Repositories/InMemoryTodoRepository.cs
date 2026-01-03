@@ -61,4 +61,30 @@ public class InMemoryTodoRepository : ITodoRepository
         var result = _items.TryRemove(id, out _);
         return Task.FromResult(result);
     }
+
+    /// <inheritdoc/>
+    public Task<PagedResult<TodoItem>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+
+        var allItems = _items.Values.OrderByDescending(x => x.CreatedAt).ToList();
+        var totalCount = allItems.Count;
+        var items = allItems
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var result = new PagedResult<TodoItem>
+        {
+            Items = items,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+
+        return Task.FromResult(result);
+    }
 }

@@ -14,15 +14,15 @@
         <div class="filter-buttons">
             <button class="filter-btn @(CurrentFilter == TodoFilter.All ? "active" : "")"
                     @onclick="() => SetFilter(TodoFilter.All)">
-                All (@_allTodos.Count)
+                All (@_totalCount)
             </button>
             <button class="filter-btn @(CurrentFilter == TodoFilter.Active ? "active" : "")"
                     @onclick="() => SetFilter(TodoFilter.Active)">
-                Active (@_activeTodos.Count)
+                Active (@_activeCount)
             </button>
             <button class="filter-btn @(CurrentFilter == TodoFilter.Completed ? "active" : "")"
                     @onclick="() => SetFilter(TodoFilter.Completed)">
-                Completed (@_completedTodos.Count)
+                Completed (@_completedCount)
             </button>
         </div>
     </div>
@@ -50,16 +50,40 @@
                   OnTodoToggled="HandleTodoToggled"
                   OnTodoUpdated="HandleTodoUpdated"
                   OnDeleteRequested="HandleDeleteRequested" />
+
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Showing @_pagedResult.Items.Count() of @_pagedResult.TotalCount todos
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-secondary" 
+                        @onclick="GoToPreviousPage" 
+                        disabled="@(!_pagedResult.HasPreviousPage)">
+                    ← Previous
+                </button>
+                <span class="page-indicator">
+                    Page @_pagedResult.PageNumber of @_pagedResult.TotalPages
+                </span>
+                <button class="btn btn-secondary" 
+                        @onclick="GoToNextPage" 
+                        disabled="@(!_pagedResult.HasNextPage)">
+                    Next →
+                </button>
+            </div>
+        </div>
     }
 </div>
 
 @code {
-    private List<TodoItemDto> _allTodos = new();
-    private List<TodoItemDto> _activeTodos = new();
-    private List<TodoItemDto> _completedTodos = new();
+    private PagedResult<TodoItemDto> _pagedResult = new() { PageSize = 10 };
     private List<TodoItemDto> _filteredTodos = new();
     private bool _isLoading = true;
     private TodoFilter CurrentFilter { get; set; } = TodoFilter.All;
+    private const int PageSize = 10;
+    private int _currentPage = 1;
+    private int _totalCount = 0;
+    private int _activeCount = 0;
+    private int _completedCount = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,8 +95,14 @@
         _isLoading = true;
         try
         {
-            _allTodos = (await TodoService.GetAllAsync()).ToList();
-            UpdateFilteredLists();
+            _pagedResult = await TodoService.GetPagedAsync(_currentPage, PageSize);
+            _filteredTodos = _pagedResult.Items.ToList();
+            
+            // Load counts for all filter buttons
+            var allTodos = (await TodoService.GetAllAsync()).ToList();
+            _totalCount = allTodos.Count;
+            _activeCount = allTodos.Count(t => !t.IsCompleted);
+            _completedCount = allTodos.Count(t => t.IsCompleted);
         }
         finally
         {
@@ -80,23 +110,29 @@
         }
     }
 
-    private void UpdateFilteredLists()
+    private async Task GoToNextPage()
     {
-        _activeTodos = _allTodos.Where(t => !t.IsCompleted).ToList();
-        _completedTodos = _allTodos.Where(t => t.IsCompleted).ToList();
-
-        _filteredTodos = CurrentFilter switch
+        if (_pagedResult.HasNextPage)
         {
-            TodoFilter.Active => _activeTodos,
-            TodoFilter.Completed => _completedTodos,
-            _ => _allTodos
-        };
+            _currentPage++;
+            await LoadTodosAsync();
+        }
     }
 
-    private void SetFilter(TodoFilter filter)
+    private async Task GoToPreviousPage()
+    {
+        if (_pagedResult.HasPreviousPage)
+        {
+            _currentPage--;
+            await LoadTodosAsync();
+        }
+    }
+
+    private async Task SetFilter(TodoFilter filter)
     {
         CurrentFilter = filter;
-        UpdateFilteredLists();
+        _currentPage = 1;
+        await LoadTodosAsync();
     }
 
     private async Task HandleTodoCreated(TodoItemDto todo)

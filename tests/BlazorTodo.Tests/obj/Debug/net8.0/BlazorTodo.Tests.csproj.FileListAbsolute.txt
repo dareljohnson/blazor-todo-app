@@ -126,3 +126,4 @@ C:\development\dotnet_apps\blazor-todo\tests\BlazorTodo.Tests\bin\Debug\net8.0\M
 C:\development\dotnet_apps\blazor-todo\tests\BlazorTodo.Tests\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 C:\development\dotnet_apps\blazor-todo\tests\BlazorTodo.Tests\bin\Debug\net8.0\Microsoft.FluentUI.AspNetCore.Components.dll
 C:\development\dotnet_apps\blazor-todo\tests\BlazorTodo.Tests\bin\Debug\net8.0\Microsoft.JSInterop.dll
+C:\development\dotnet_apps\blazor-todo\tests\BlazorTodo.Tests\obj\Debug\net8.0\BlazorTodo.Tests.sourcelink.json

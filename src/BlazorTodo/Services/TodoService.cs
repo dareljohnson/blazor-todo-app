@@ -136,4 +136,28 @@ public class TodoService : ITodoService
         _logger.LogInformation("Deleting todo item: {Id}", id);
         return await _repository.DeleteAsync(id, cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task<PagedResult<TodoItemDto>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Getting paged todo items: Page {PageNumber}, Size {PageSize}", pageNumber, pageSize);
+        var pagedResult = await _repository.GetPagedAsync(pageNumber, pageSize, cancellationToken);
+        
+        var dtos = pagedResult.Items.Select(item => new TodoItemDto
+        {
+            Id = item.Id,
+            Title = item.Title,
+            IsCompleted = item.IsCompleted,
+            Priority = item.Priority,
+            CreatedAt = item.CreatedAt
+        });
+
+        return new PagedResult<TodoItemDto>
+        {
+            Items = dtos,
+            PageNumber = pagedResult.PageNumber,
+            PageSize = pagedResult.PageSize,
+            TotalCount = pagedResult.TotalCount
+        };
+    }
 }

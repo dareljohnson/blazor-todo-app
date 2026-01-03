@@ -880,4 +880,75 @@ button {
     margin-bottom: 0;
 }
 
+/* ===== Pagination Styles ===== */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.pagination-info {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-indicator {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0 0.5rem;
+    white-space: nowrap;
+}
+
+.pagination-controls .btn {
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pagination-controls .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pagination-controls .btn:disabled:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 600px) {
+    .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .pagination-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .page-indicator {
+        order: -1;
+        width: 100%;
+        text-align: center;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+}
+
 }

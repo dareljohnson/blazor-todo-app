@@ -46,4 +46,13 @@ public interface ITodoService
     /// Deletes a todo item.
     /// </summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a paged collection of todo items.
+    /// </summary>
+    /// <param name="pageNumber">The page number (1-based).</param>
+    /// <param name="pageSize">The number of items per page.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A paged result of todo item DTOs.</returns>
+    Task<PagedResult<TodoItemDto>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 }
