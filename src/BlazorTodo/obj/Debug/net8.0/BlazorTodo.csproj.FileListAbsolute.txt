@@ -49,3 +49,4 @@ C:\development\dotnet_apps\blazor-todo\src\BlazorTodo\bin\Debug\net8.0\Microsoft
 C:\development\dotnet_apps\blazor-todo\src\BlazorTodo\bin\Debug\net8.0\Microsoft.JSInterop.dll
 C:\development\dotnet_apps\blazor-todo\src\BlazorTodo\obj\Debug\net8.0\jsmodules\jsmodules.build.manifest.json
 C:\development\dotnet_apps\blazor-todo\src\BlazorTodo\obj\Debug\net8.0\BlazorTodo.csproj.Up2Date
+C:\development\dotnet_apps\blazor-todo\src\BlazorTodo\obj\Debug\net8.0\BlazorTodo.sourcelink.json

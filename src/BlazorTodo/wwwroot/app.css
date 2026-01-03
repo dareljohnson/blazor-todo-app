@@ -804,4 +804,80 @@ button {
     border-color: var(--secondary-color);
 }
 
+/* ===== Error Page Styles ===== */
+.error-container {
+    max-width: 600px;
+    margin: 3rem auto;
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.error-container h1 {
+    color: var(--danger-color);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+}
+
+.error-details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.error-details code {
+    background: var(--background);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+}
+
+.error-actions {
+    margin-bottom: 3rem;
+}
+
+.error-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: left;
+}
+
+.error-info h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.error-info p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.error-info p:last-child {
+    margin-bottom: 0;
+}
+
 }
