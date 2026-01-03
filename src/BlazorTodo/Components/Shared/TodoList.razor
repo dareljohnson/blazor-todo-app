@@ -1,0 +1,25 @@
+@using BlazorTodo.Models
+
+<div class="todo-list">
+    @foreach (var todo in Todos)
+    {
+        <TodoItemComponent Todo="@todo"
+                          OnToggled="@(() => OnTodoToggled.InvokeAsync(todo.Id))"
+                          OnUpdated="@OnTodoUpdated"
+                          OnDeleteRequested="@OnDeleteRequested" />
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<TodoItemDto> Todos { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Guid> OnTodoToggled { get; set; }
+
+    [Parameter]
+    public EventCallback<TodoItemDto> OnTodoUpdated { get; set; }
+
+    [Parameter]
+    public EventCallback<(Guid Id, string Title)> OnDeleteRequested { get; set; }
+}

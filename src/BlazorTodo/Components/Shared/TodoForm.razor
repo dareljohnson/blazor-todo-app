@@ -1,0 +1,91 @@
+@using BlazorTodo.Models
+@using BlazorTodo.Services
+@inject ITodoService TodoService
+
+<div class="todo-form">
+    <h3>Add New Task</h3>
+    <EditForm Model="@_newTodo" OnValidSubmit="HandleSubmit" FormName="todoForm">
+        <DataAnnotationsValidator />
+        
+        <div class="form-row">
+            <div class="form-group flex-2">
+                <label for="title">Title *</label>
+                <InputText id="title" @bind-Value="_newTodo.Title" 
+                           class="form-control" 
+                           placeholder="What needs to be done?" />
+                <ValidationMessage For="@(() => _newTodo.Title)" />
+            </div>
+
+            <div class="form-group flex-1">
+                <label for="priority">Priority</label>
+                <InputSelect id="priority" @bind-Value="_newTodo.Priority" class="form-control">
+                    <option value="@TodoPriority.Low">Low</option>
+                    <option value="@TodoPriority.Medium">Medium</option>
+                    <option value="@TodoPriority.High">High</option>
+                </InputSelect>
+            </div>
+
+            <div class="form-group flex-1">
+                <label for="dueDate">Due Date</label>
+                <InputDate id="dueDate" @bind-Value="_newTodo.DueDate" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputTextArea id="description" @bind-Value="_newTodo.Description" 
+                          class="form-control" 
+                          placeholder="Add more details..." 
+                          rows="2" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+                @if (_isSubmitting)
+                {
+                    <span class="spinner-small"></span>
+                    <span>Adding...</span>
+                }
+                else
+                {
+                    <span>➕ Add Task</span>
+                }
+            </button>
+            @if (!string.IsNullOrWhiteSpace(_newTodo.Title) || !string.IsNullOrWhiteSpace(_newTodo.Description))
+            {
+                <button type="button" class="btn btn-secondary" @onclick="ClearForm">Clear</button>
+            }
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<TodoItemDto> OnTodoCreated { get; set; }
+
+    private TodoItemDto _newTodo = new();
+    private bool _isSubmitting = false;
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(_newTodo.Title))
+            return;
+
+        _isSubmitting = true;
+        try
+        {
+            var created = await TodoService.CreateAsync(_newTodo);
+            await OnTodoCreated.InvokeAsync(created);
+            ClearForm();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void ClearForm()
+    {
+        _newTodo = new TodoItemDto();
+    }
+}

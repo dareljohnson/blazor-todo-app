@@ -1,0 +1,167 @@
+@using BlazorTodo.Models
+
+<div class="todo-item @GetCompletedClass() @GetPriorityClass()">
+    <div class="todo-item-main">
+        <div class="todo-checkbox">
+            <input type="checkbox" 
+                   id="@($"todo-{Todo.Id}")" 
+                   checked="@Todo.IsCompleted" 
+                   @onchange="HandleToggle" />
+            <label for="@($"todo-{Todo.Id}")"></label>
+        </div>
+
+        @if (_isEditing)
+        {
+            <div class="todo-edit-form">
+                <input type="text" 
+                       class="edit-input" 
+                       @bind="_editTitle" 
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown" />
+                <div class="edit-actions">
+                    <button class="btn-icon btn-save" @onclick="SaveEdit" title="Save">✓</button>
+                    <button class="btn-icon btn-cancel" @onclick="CancelEdit" title="Cancel">✕</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="todo-content" @ondblclick="StartEdit">
+                <div class="todo-title-row">
+                    <h4 class="todo-title">@Todo.Title</h4>
+                    <span class="priority-badge priority-@Todo.Priority.ToString().ToLower()">
+                        @GetPriorityIcon() @Todo.Priority
+                    </span>
+                </div>
+                
+                @if (!string.IsNullOrWhiteSpace(Todo.Description))
+                {
+                    <p class="todo-description">@Todo.Description</p>
+                }
+
+                <div class="todo-metadata">
+                    @if (Todo.DueDate.HasValue)
+                    {
+                        var dueClass = GetDueDateClass();
+                        <span class="due-date @dueClass">
+                            📅 @Todo.DueDate.Value.ToString("MMM dd, yyyy")
+                            @if (dueClass == "overdue")
+                            {
+                                <span class="overdue-text">(Overdue)</span>
+                            }
+                        </span>
+                    }
+                    @if (Todo.IsCompleted && Todo.CompletedAt.HasValue)
+                    {
+                        <span class="completed-at">
+                            ✓ Completed @Todo.CompletedAt.Value.ToString("MMM dd, yyyy")
+                        </span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!_isEditing)
+    {
+        <div class="todo-actions">
+            <button class="btn-icon btn-edit" @onclick="StartEdit" title="Edit">
+                ✏️
+            </button>
+            <button class="btn-icon btn-delete" @onclick="RequestDelete" title="Delete">
+                🗑️
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TodoItemDto Todo { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnToggled { get; set; }
+
+    [Parameter]
+    public EventCallback<TodoItemDto> OnUpdated { get; set; }
+
+    [Parameter]
+    public EventCallback<(Guid Id, string Title)> OnDeleteRequested { get; set; }
+
+    private bool _isEditing = false;
+    private string _editTitle = string.Empty;
+
+    private async Task HandleToggle()
+    {
+        await OnToggled.InvokeAsync();
+    }
+
+    private async Task RequestDelete()
+    {
+        await OnDeleteRequested.InvokeAsync((Todo.Id, Todo.Title));
+    }
+
+    private void StartEdit()
+    {
+        _isEditing = true;
+        _editTitle = Todo.Title;
+    }
+
+    private void CancelEdit()
+    {
+        _isEditing = false;
+        _editTitle = string.Empty;
+    }
+
+    private async Task SaveEdit()
+    {
+        if (!string.IsNullOrWhiteSpace(_editTitle))
+        {
+            var updated = Todo with { Title = _editTitle.Trim() };
+            await OnUpdated.InvokeAsync(updated);
+            _isEditing = false;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SaveEdit();
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit();
+        }
+    }
+
+    private string GetCompletedClass() => Todo.IsCompleted ? "completed" : "";
+
+    private string GetPriorityClass() => $"priority-{Todo.Priority.ToString().ToLower()}";
+
+    private string GetPriorityIcon() => Todo.Priority switch
+    {
+        TodoPriority.High => "🔴",
+        TodoPriority.Medium => "🟡",
+        TodoPriority.Low => "🟢",
+        _ => ""
+    };
+
+    private string GetDueDateClass()
+    {
+        if (!Todo.DueDate.HasValue || Todo.IsCompleted)
+            return "";
+
+        var today = DateTime.Now.Date;
+        var dueDate = Todo.DueDate.Value.Date;
+
+        if (dueDate < today)
+            return "overdue";
+        else if (dueDate == today)
+            return "due-today";
+        else if (dueDate <= today.AddDays(3))
+            return "due-soon";
+
+        return "";
+    }
+}

@@ -1,0 +1,157 @@
+﻿@page "/"
+@using BlazorTodo.Models
+@using BlazorTodo.Services
+@using Microsoft.FluentUI.AspNetCore.Components
+@rendermode InteractiveServer
+@inject ITodoService TodoService
+@inject IDialogService DialogService
+
+<PageTitle>Todo App</PageTitle>
+
+<div class="todo-app">
+    <div class="todo-header">
+        <h2>My Tasks</h2>
+        <div class="filter-buttons">
+            <button class="filter-btn @(CurrentFilter == TodoFilter.All ? "active" : "")"
+                    @onclick="() => SetFilter(TodoFilter.All)">
+                All (@_allTodos.Count)
+            </button>
+            <button class="filter-btn @(CurrentFilter == TodoFilter.Active ? "active" : "")"
+                    @onclick="() => SetFilter(TodoFilter.Active)">
+                Active (@_activeTodos.Count)
+            </button>
+            <button class="filter-btn @(CurrentFilter == TodoFilter.Completed ? "active" : "")"
+                    @onclick="() => SetFilter(TodoFilter.Completed)">
+                Completed (@_completedTodos.Count)
+            </button>
+        </div>
+    </div>
+
+    <TodoForm OnTodoCreated="HandleTodoCreated" />
+
+    @if (_isLoading)
+    {
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading todos...</p>
+        </div>
+    }
+    else if (!_filteredTodos.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>No todos yet</h3>
+            <p>@GetEmptyStateMessage()</p>
+        </div>
+    }
+    else
+    {
+        <TodoList Todos="_filteredTodos"
+                  OnTodoToggled="HandleTodoToggled"
+                  OnTodoUpdated="HandleTodoUpdated"
+                  OnDeleteRequested="HandleDeleteRequested" />
+    }
+</div>
+
+@code {
+    private List<TodoItemDto> _allTodos = new();
+    private List<TodoItemDto> _activeTodos = new();
+    private List<TodoItemDto> _completedTodos = new();
+    private List<TodoItemDto> _filteredTodos = new();
+    private bool _isLoading = true;
+    private TodoFilter CurrentFilter { get; set; } = TodoFilter.All;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTodosAsync();
+    }
+
+    private async Task LoadTodosAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _allTodos = (await TodoService.GetAllAsync()).ToList();
+            UpdateFilteredLists();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void UpdateFilteredLists()
+    {
+        _activeTodos = _allTodos.Where(t => !t.IsCompleted).ToList();
+        _completedTodos = _allTodos.Where(t => t.IsCompleted).ToList();
+
+        _filteredTodos = CurrentFilter switch
+        {
+            TodoFilter.Active => _activeTodos,
+            TodoFilter.Completed => _completedTodos,
+            _ => _allTodos
+        };
+    }
+
+    private void SetFilter(TodoFilter filter)
+    {
+        CurrentFilter = filter;
+        UpdateFilteredLists();
+    }
+
+    private async Task HandleTodoCreated(TodoItemDto todo)
+    {
+        await LoadTodosAsync();
+    }
+
+    private async Task HandleTodoToggled(Guid id)
+    {
+        await TodoService.ToggleCompleteAsync(id);
+        await LoadTodosAsync();
+    }
+
+    private async Task HandleDeleteRequested((Guid Id, string Title) todoInfo)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync(
+            message: $"Are you sure you want to delete '{todoInfo.Title}'?\n\nThis action cannot be undone.",
+            primaryText: "Delete",
+            secondaryText: "Cancel",
+            title: "Delete Todo"
+        );
+
+        var result = await dialog.Result;
+        if (result is not null && !result.Cancelled)
+        {
+            await HandleTodoDeleted(todoInfo.Id);
+        }
+    }
+
+    private async Task HandleTodoDeleted(Guid id)
+    {
+        await TodoService.DeleteAsync(id);
+        await LoadTodosAsync();
+    }
+
+    private async Task HandleTodoUpdated(TodoItemDto todo)
+    {
+        await TodoService.UpdateAsync(todo);
+        await LoadTodosAsync();
+    }
+
+    private string GetEmptyStateMessage()
+    {
+        return CurrentFilter switch
+        {
+            TodoFilter.Active => "All tasks completed! Great job! 🎉",
+            TodoFilter.Completed => "No completed tasks yet. Start checking off items!",
+            _ => "Add your first task using the form above."
+        };
+    }
+
+    private enum TodoFilter
+    {
+        All,
+        Active,
+        Completed
+    }
+}

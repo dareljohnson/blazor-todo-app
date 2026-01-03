@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-container">
+    <header class="app-header">
+        <div class="header-content">
+            <h1 class="app-title">
+                <span class="icon">✓</span>
+                <span>My Todo App</span>
+            </h1>
+            <p class="app-subtitle">Stay organized, get things done</p>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="content-wrapper">
+            @Body
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 Blazor Todo App. Built with ASP.NET Core Blazor.</p>
+    </footer>
+</div>
+
+<FluentDialogProvider @rendermode="InteractiveServer" />
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
